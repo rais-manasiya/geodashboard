@@ -25,20 +25,21 @@
   <!-- skins CSS-->
   <link href="assets/css/skins.css" rel="stylesheet"/>
 <style>
-table {
+.leaflet-popup-content table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
   width: 100%;
 }
 
-td, th {
+.leaflet-popup-content td, .leaflet-popup-content th {
   border: 1px solid #dddddd;
   text-align: left;
   padding: 8px;
 }
 
-tr:nth-child(even) {
-  background-color: #dddddd;
+.leaflet-popup-content td:first-child {
+  background-color: #f8f7f7;
+  font-weight:600;
 }
 </style>
 </head>
@@ -241,12 +242,14 @@ tr:nth-child(even) {
 L.mapbox.accessToken = 'pk.eyJ1IjoicmFpc21hbmFzaXlhNzg2IiwiYSI6ImNrN3hreWVvbTAwb2wzZm1xem4wZzZpZ24ifQ.eGSDPXrlEPKbekfvkajU5A';
 //var url = 'https://api.github.com/repos/mapbox/mapbox.js/contents/test/manual/example.geojson';
 
-var url = 'https://gist.githubusercontent.com/rais-manasiya/009313d56f536800d1ac5900059bebfa/raw/acc83622473db7b99a6bcd8cb7dd0598c3a6d98a/forestgeojson.geojson';
+//var url = 'https://gist.githubusercontent.com/rais-manasiya/009313d56f536800d1ac5900059bebfa/raw/acc83622473db7b99a6bcd8cb7dd0598c3a6d98a/forestgeojson.geojson';
+
+var url = 'https://raw.githubusercontent.com/liliana175/s4g_arsari/master/fire_nrt_archive_M6_108037_merge_gj.geojson';
 
 var map = L.mapbox.map('map')
   .setView([-2.483,117.965], 7)
   .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11'));
-
+var myLayer = L.mapbox.featureLayer().addTo(map);
 function load() {
   // Fetch just the contents of a .geojson file from GitHub by passing
   // `application/vnd.github.v3.raw` to the Accept header
@@ -263,11 +266,29 @@ function load() {
     url: url,
     success: function(geojson) {
         // On success add fetched data to the map.
-        L.mapbox.featureLayer(geojson).addTo(map);
-		L.control.layers({
-			'Mapbox Streets': L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11').addTo(map),
-			'Mapbox Satellite': L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v11')
-		}).addTo(map);
+        //L.mapbox.featureLayer(geojson).addTo(map);
+		
+		// Set a custom icon on each marker based on feature properties.
+		var i=1;
+   myLayer.on('layeradd', function(e) {
+    var marker = e.layer,
+    feature = marker.feature;
+  //marker.setIcon(L.icon(feature.properties.icon));
+  
+    var content = '<table ><tbody><tr><td colspan="2">Marker '+i+'</td><tr><tr><td>Latitude</td><td>'+feature.properties.LATITUDE + '</td></tr><tr><td>Longitude</td><td>' + feature.properties.LONGITUDE + '</td></tr><tr><td>Brightness</td><td>' + feature.properties.BRIGHTNESS + '</td></tr><tr><td>ACQ_DATE</td><td>' + feature.properties.ACQ_DATE + '</td></tr><tr><td>ACQ_TIME</td><td>' + feature.properties.ACQ_TIME + '</td></tr><tr><td>CONFIDENCE</td><td>' + feature.properties.CONFIDENCE + '</td></tr></tbody></table>';
+     marker.bindPopup(content);
+	 i++;
+	});
+	myLayer.setGeoJSON(geojson);
+
+	L.control.layers({
+		'Mapbox Streets': L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11').addTo(map),
+		'Mapbox Satellite': L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v11')
+	}).addTo(map);
+		
+		
+	
+
     }
   });
 }
