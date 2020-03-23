@@ -183,7 +183,7 @@
 	<div class="row">
      <div class="col-12 col-lg-12 col-xl-12">
 	    <div class="card">
-		 <div class="card-header">Indonesia Geo Data
+		 <div class="card-header">Arsari - Geo Vector Data
 		 
 		
 		          
@@ -231,8 +231,9 @@
 	
 	
   </div><!--End wrapper-->
-	<script src='https://api.mapbox.com/mapbox.js/v3.2.1/mapbox.js'></script>
-	<link href='https://api.mapbox.com/mapbox.js/v3.2.1/mapbox.css' rel='stylesheet' />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+
   <!-- Bootstrap core JavaScript-->
   <script src="assets/js/jquery.min.js"></script>
   <script src="assets/js/popper.min.js"></script>
@@ -250,80 +251,81 @@
 
 
 
-  <script>
-L.mapbox.accessToken = 'pk.eyJ1IjoicmFpc21hbmFzaXlhNzg2IiwiYSI6ImNrN3hreWVvbTAwb2wzZm1xem4wZzZpZ24ifQ.eGSDPXrlEPKbekfvkajU5A';
-//var url = 'https://api.github.com/repos/mapbox/mapbox.js/contents/test/manual/example.geojson';
+  <script src="assets/json/sample-geojson.js" type="text/javascript"></script>
 
-//var url = 'https://gist.githubusercontent.com/rais-manasiya/009313d56f536800d1ac5900059bebfa/raw/acc83622473db7b99a6bcd8cb7dd0598c3a6d98a/forestgeojson.geojson';
+<script>
+	var map = L.map('map').setView([39.74739, -105], 13);
 
-var url = 'https://raw.githubusercontent.com/liliana175/s4g_arsari/master/fire_nrt_archive_M6_108037_merge_gj.geojson';
+	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+		maxZoom: 18,
+		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+			'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+		id: 'mapbox/light-v9',
+		tileSize: 512,
+		zoomOffset: -1
+	}).addTo(map);
 
-var map = L.mapbox.map('map')
-  .setView([-2.483,117.965], 7)
-  .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11'));
-var myLayer = L.mapbox.featureLayer().addTo(map);
-
-
-$("input[type='radio']").click(function(){
-	var radioValue = $("input[name='style']:checked").val();
-
-	if(radioValue){
-		L.mapbox.styleLayer('mapbox://styles/'+radioValue).addTo(map);
-		//alert("Your are a - " + radioValue);
-	}
-});
-	
-	
-function load() {
-  // Fetch just the contents of a .geojson file from GitHub by passing
-  // `application/vnd.github.v3.raw` to the Accept header
-  // As with any other AJAX request, this technique is subject to the Same Origin Policy:
-  // http://en.wikipedia.org/wiki/Same_origin_policy the server delivering the request should support CORS.
-  $.ajax({
-    headers: {
-      'Accept': 'application/vnd.github.v3.raw'
-    },
-    xhrFields: {
-      withCredentials: false
-    },
-    dataType: 'json',
-    url: url,
-    success: function(geojson) {
-        // On success add fetched data to the map.
-        //L.mapbox.featureLayer(geojson).addTo(map);
-		
-		// Set a custom icon on each marker based on feature properties.
-		var i=1;
-   myLayer.on('layeradd', function(e) {
-    var marker = e.layer,
-    feature = marker.feature;
-  //marker.setIcon(L.icon(feature.properties.icon));
-  
-    var content = '<table ><tbody><tr><td colspan="2">Marker '+i+'</td><tr><tr><td>Latitude</td><td>'+feature.properties.LATITUDE + '</td></tr><tr><td>Longitude</td><td>' + feature.properties.LONGITUDE + '</td></tr><tr><td>Brightness</td><td>' + feature.properties.BRIGHTNESS + '</td></tr><tr><td>ACQ_DATE</td><td>' + feature.properties.ACQ_DATE + '</td></tr><tr><td>ACQ_TIME</td><td>' + feature.properties.ACQ_TIME + '</td></tr><tr><td>CONFIDENCE</td><td>' + feature.properties.CONFIDENCE + '</td></tr></tbody></table>';
-     marker.bindPopup(content);
-	 i++;
+	var baseballIcon = L.icon({
+		iconUrl: 'assets/images/map/baseball-marker.png',
+		iconSize: [32, 37],
+		iconAnchor: [16, 37],
+		popupAnchor: [0, -28]
 	});
-	myLayer.setGeoJSON(geojson);
 
-	 /* L.control.layers({ 
-		 'Mapbox Streets': L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11').addTo(map), 
-		'Mapbox Satellite': L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v11'), 
-		 'NDVI - TIFF': L.mapbox.styleLayer('mapbox://styles/raismanasiya786/ck8047yt50bah1ilhl5n8fllo') 
-		
-	 }).addTo(map); */
-	 
-	 setTimeout(function(){
-	   $('.style_layer').show();
-	}, 2000);
-	 
-		
+	function onEachFeature(feature, layer) {
+		var popupContent = "<p>I started out as a GeoJSON " +
+				feature.geometry.type + ", but now I'm a Leaflet vector!</p>";
 
+		if (feature.properties && feature.properties.popupContent) {
+			popupContent += feature.properties.popupContent;
+		}
 
-    }
-  });
-}
+		layer.bindPopup(popupContent);
+	}
 
-$(load);
+	L.geoJSON([bicycleRental, campus], {
+
+		style: function (feature) {
+			return feature.properties && feature.properties.style;
+		},
+
+		onEachFeature: onEachFeature,
+
+		pointToLayer: function (feature, latlng) {
+			return L.circleMarker(latlng, {
+				radius: 8,
+				fillColor: "#ff7800",
+				color: "#000",
+				weight: 1,
+				opacity: 1,
+				fillOpacity: 0.8
+			});
+		}
+	}).addTo(map);
+
+	/*L.geoJSON(freeBus, {
+
+		filter: function (feature, layer) {
+			if (feature.properties) {
+				
+				return feature.properties.underConstruction !== undefined ? !feature.properties.underConstruction : true;
+			}
+			return false;
+		},
+
+		onEachFeature: onEachFeature
+	}).addTo(map);*/
+
+	var coorsLayer = L.geoJSON(coorsField, {
+
+		pointToLayer: function (feature, latlng) {
+			return L.marker(latlng, {icon: baseballIcon});
+		},
+
+		onEachFeature: onEachFeature
+	}).addTo(map);
+
 </script>
 </body>
 </html>
